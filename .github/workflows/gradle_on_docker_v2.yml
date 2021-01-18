@@ -1,0 +1,43 @@
+name: gradle on docker v2
+
+# 每次提交一个新的commit到仓库都执行此工作流
+on: [ push ]
+
+jobs:
+  # 设置任务key, 当没有设置name的时候显示这个值
+  push_to_registry:
+    # 任务的名字
+    name: Push Docker image to Docker Hub
+    # 在指定的系统上运行
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取代码到该机器上
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      # 使用buildx工具
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      # 登陆dockerhub
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 构建并推送镜像到dockerhub
+      - name: build and push to dockerhub
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          pull: true
+          push: true
+          build-args:
+            arg1=value1
+            arg2=value2
+          tags: wanlinus/ghaction:v2
+
+      # 构建完成后做的事情
+      - name: Image digest
+        run : echo hello

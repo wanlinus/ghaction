@@ -1,0 +1,31 @@
+name: gradle on docker v1
+
+# 每次提交一个新的commit到仓库都执行此工作流
+on: [ push ]
+
+jobs:
+  # 设置任务key, 当没有设置name的时候显示这个值
+  push_to_registry:
+    # 任务的名字
+    name: Push Docker image to Docker Hub
+    # 在指定的系统上运行
+    runs-on: ubuntu-latest
+
+    steps:
+      # 拉取代码到该机器上
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      # 构建并上传镜像
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: wanlinus/ghaction
+          # 镜像tag用分支
+          tag_with_ref: true
+          # 镜像分支用git sha
+          tag_with_sha: true
+          # 将带有git仓库信息的标签添加到镜像meta中
+          add_git_labels: true
