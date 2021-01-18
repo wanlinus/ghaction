@@ -1,4 +1,4 @@
-name: github-action
+name: gradle on ubuntu
 
 on: [ push ]
 
