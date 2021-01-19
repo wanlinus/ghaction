@@ -10,11 +10,13 @@ jobs:
     name: Push Docker image to Docker Hub
     # 在指定的系统上运行
     runs-on: ubuntu-latest
-
     steps:
       # 拉取代码到该机器上
       - name: Check out the repo
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          ref: master
 
       # 构建并上传镜像
       - name: Push to Docker Hub

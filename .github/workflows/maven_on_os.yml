@@ -1,4 +1,4 @@
-name: gradle on ubuntu
+name: maven on ubuntu
 
 # 每次提交一个新的commit到仓库都执行此工作流
 on: [ push ]
@@ -27,9 +27,9 @@ jobs:
         run: java -version
 
       - name: Build with Gradle
-        run: ./gradlew clean assemble
+        run: mvn -DskipTests=true package
 
       - uses: actions/upload-artifact@v2
         with:
-          name: Package-Gradle
+          name: Package-Maven
           path: build/libs

@@ -1,4 +1,4 @@
-name: gradle on docker v2
+name: gradle on docker v3
 
 # 每次提交一个新的commit到仓库都执行此工作流
 on: [ push ]
@@ -15,33 +15,37 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
         with:
-          fetch-depth: 1
+          fetch-depth: 1    # git fetch
           ref: master
 
       # 使用buildx工具
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+        id: builder1
 
-      # 登陆dockerhub
+      # 登陆github
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: docker.pkg.github.com
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 构建并推送镜像到dockerhub
+      # 构建并推送镜像到github registry
       - name: Build and Push to Dockerhub
         uses: docker/build-push-action@v2   # Path to the Dockerfile
         with:
+          builder: ${{ steps.builder1.outputs.name }} # 引用上面的builder1
           context: .          # Build's context is the set of files located in the specified PATH or URL (default Git context)
           file: ./Dockerfile  # Path to the Dockerfile. (default {context}/Dockerfile)
           pull: true          # Always attempt to pull a newer version of the image (default false)
-          push: true          # Push is a shorthand for --output=type=registry (default false)
-          build-args:         # List of build-time variables
+          push: true          # Will automatically push the build result to registry. Push is a shorthand for --output=type=registry (default false)
+          build-args: # List of build-time variables
             arg1=value1
             arg2=value2
-          tags: wanlinus/ghaction:v2
+          tags: docker.pkg.github.com/wanlinus/ghaction:v3
+          platforms: linux/amd64  # List of target platforms for build - linux/arm64
 
       # 构建完成后做的事情
       - name: Image digest
-        run : echo hello
+        run: echo hello
